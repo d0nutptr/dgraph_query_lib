@@ -10,10 +10,12 @@ pub struct QueryBlock {
     query_type: QueryBlockType,
     predicates: Vec<Predicate>,
     root_filter: Condition,
-    #[builder(setter(strip_option),  default)]
+    #[builder(setter(strip_option), default)]
     filter: Option<Condition>,
-    #[builder(setter(strip_option),  default)]
+    #[builder(setter(strip_option), default)]
     first: Option<i64>,
+    #[builder(setter(strip_option), default)]
+    variable: Option<String>,
     #[builder(default)]
     order: QueryOrder,
     #[builder(default)]
@@ -89,10 +91,15 @@ impl ToQueryString for QueryBlock {
 
         let cascade = if self.cascade { format!("@cascade") } else { format!("") };
 
+        let variable = self.variable.clone()
+            .map(|variable| format!("{} as ", variable))
+            .unwrap_or("".to_string());
+
         format!("\
-        {name}(func: {root_filter}{order}{first}) {filter} {cascade} {{\
+        {variable}{name}(func: {root_filter}{order}{first}) {filter} {cascade} {{\
         \n{query_block_inner}\
         \n}}",
+                variable = variable,
                 name = self.query_type.to_query_string(),
                 root_filter = self.root_filter.to_query_string(),
                 order = self.order.to_query_string(),
