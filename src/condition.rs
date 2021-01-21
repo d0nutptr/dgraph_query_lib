@@ -1,12 +1,15 @@
 use crate::ToQueryString;
 use serde_json::Value;
 use crate::predicate::Variable;
+use itertools::Itertools;
 
 #[derive(Clone, Debug)]
 pub enum ConditionValue {
     String(String),
+    StringArr(Vec<String>),
     Regexp(String),
     Literal(String),
+    NumArr(Vec<String>),
     Val(Variable)
 }
 
@@ -26,6 +29,14 @@ impl ConditionValue {
     pub fn literal_int(value: i64) -> ConditionValue {
         ConditionValue::Literal(format!("{}", value))
     }
+
+    pub fn string_arr(value: Vec<&str>) -> ConditionValue {
+        ConditionValue::StringArr(value.into_iter().map(|item| item.to_string()).collect())
+    }
+
+    pub fn num_arr(value: Vec<i64>) -> ConditionValue {
+        ConditionValue::NumArr(value.into_iter().map(|value| format!("{}", value)).collect())
+    }
 }
 
 impl ToQueryString for ConditionValue {
@@ -33,7 +44,9 @@ impl ToQueryString for ConditionValue {
         match self {
             ConditionValue::Regexp(value) | ConditionValue::Literal(value) => format!("{}", value),
             ConditionValue::String(value) => Value::String(value.clone()).to_string(),
-            ConditionValue::Val(value) => format!("val({})", value.get_name())
+            ConditionValue::Val(value) => format!("val({})", value.get_name()),
+            ConditionValue::StringArr(value) => format!("[{}]", value.iter().map(|item| Value::String(item.to_string()).to_string()).join(", ")),
+            ConditionValue::NumArr(value) => format!("[{}]", value.iter().join(", "))
         }
     }
 }

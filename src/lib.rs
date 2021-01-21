@@ -12,7 +12,7 @@ pub use queryblock::QueryBlockBuilder;
 pub use predicate::EdgeBuilder;
 pub use mutation::MutationBuilder;
 
-trait ToQueryString {
+pub trait ToQueryString {
     fn to_query_string(&self) -> String;
 }
 

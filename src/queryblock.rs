@@ -15,7 +15,9 @@ pub struct QueryBlock {
     #[builder(setter(strip_option),  default)]
     first: Option<i64>,
     #[builder(default)]
-    order: QueryOrder
+    order: QueryOrder,
+    #[builder(default)]
+    cascade: bool,
 }
 
 #[derive(Clone)]
@@ -85,8 +87,10 @@ impl ToQueryString for QueryBlock {
             .map(|filter| format!("@filter({})", filter.to_query_string()))
             .unwrap_or("".to_string());
 
+        let cascade = if self.cascade { format!("@cascade") } else { format!("") };
+
         format!("\
-        {name}(func: {root_filter}{order}{first}) {filter} {{\
+        {name}(func: {root_filter}{order}{first}) {filter} {cascade} {{\
         \n{query_block_inner}\
         \n}}",
                 name = self.query_type.to_query_string(),
@@ -94,6 +98,7 @@ impl ToQueryString for QueryBlock {
                 order = self.order.to_query_string(),
                 first = first,
                 filter = filter,
+                cascade = cascade,
                 query_block_inner = query_block_inner.indent()
         )
     }

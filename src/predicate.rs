@@ -32,6 +32,10 @@ impl Variable {
         self
     }
 
+    pub fn random() -> Self {
+        Self::new(&format!("var_{}", rand::random::<u128>()))
+    }
+
     pub fn get_name(&self) -> String {
         self.name.clone()
     }
