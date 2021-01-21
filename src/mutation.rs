@@ -34,6 +34,10 @@ impl MutationUnit {
         self.predicates.insert(name.to_string(), value);
         self
     }
+
+    pub fn predicate_ref(&mut self, name: &str, value: MutationPredicateValue) {
+        self.predicates.insert(name.to_string(), value);
+    }
 }
 
 #[derive(Clone, Serialize)]
